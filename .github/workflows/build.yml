@@ -1,25 +1,35 @@
-name: Build APK
+workflows:
+  android-build:
+    name: 1LAVO Android APK
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+    scripts:
+      - name: Generate Android platform files
+        script: flutter create . --platforms=android --org com.one.lavo
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Build Android APK
+        script: flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
 
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 'stable'
-      - name: Create Android folder
-        run: flutter create --platforms=android --org com.onelavo.app .
-      - name: Get packages
-        run: flutter pub get
-      - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: 1LAVO-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+  ios-build:
+    name: 1LAVO iOS build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Generate iOS platform files
+        script: flutter create . --platforms=ios --org com.one.lavo
+      - name: Install dependencies
+        script: flutter pub get
+      - name: Build iOS without signing
+        script: flutter build ios --release --no-codesign
+    artifacts:
+      - build/ios/iphoneos/Runner.app
+      - /tmp/xcodebuild_logs/*.log
