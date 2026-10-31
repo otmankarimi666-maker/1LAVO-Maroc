@@ -1,14 +1,19 @@
 workflows:
   android-workflow:
-    name: 1LAVO Android APK
-    max_build_duration: 20
-    instance_type: mac_mini_m2
+    name: Android Workflow
+    instance_type: linux_x2
+    max_build_duration: 60
     environment:
       flutter: stable
     scripts:
-      - name: Get packages
-        script: flutter pub get
+      - name: Create Android folder
+        script: |
+          flutter create --platforms=android --org com.onelavo.app .
+      - name: Get dependencies
+        script: |
+          flutter pub get
       - name: Build APK
-        script: flutter build apk --release
+        script: |
+          flutter build apk --release --no-tree-shake-icons
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+      - build/**/outputs/**/*.apk
